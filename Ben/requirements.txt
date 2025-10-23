@@ -1,0 +1,6 @@
+pandas
+openpyxl
+fuzzywuzzy
+python-Levenshtein
+sv-ttk
+customtkinter
