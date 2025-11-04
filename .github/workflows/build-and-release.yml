@@ -1,0 +1,73 @@
+name: Build and Release Windows Executable
+
+on:
+  push:
+    branches: [ main, master ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: Build executable with PyInstaller
+      run: |
+        pyinstaller app2.py --onefile --noconsole --name "BenSmallApp"
+    
+    - name: Generate version tag
+      id: generate_tag
+      run: |
+        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          echo "tag_name=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+        else
+          echo "tag_name=v${{ github.run_number }}" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+    
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: ${{ steps.generate_tag.outputs.tag_name }}
+        name: "BenSmallApp ${{ steps.generate_tag.outputs.tag_name }}"
+        body: |
+          ## 🚀 BenSmallApp Windows Executable
+          
+          **Download Instructions:**
+          1. Click on `BenSmallApp.exe` below to download
+          2. Save the file to your computer
+          3. Double-click `BenSmallApp.exe` to run the application
+          
+          **System Requirements:**
+          - Windows 10 or later
+          - No Python installation required
+          
+          **What's New:**
+          - Built from commit: ${{ github.sha }}
+          - Build date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
+          
+          ---
+          
+          💡 **For non-technical users:** Simply download the `.exe` file and double-click it to run!
+        artifacts: "dist/BenSmallApp.exe"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        allowUpdates: true
+        replacesArtifacts: true
+        makeLatest: true
+        draft: false
+        prerelease: false
