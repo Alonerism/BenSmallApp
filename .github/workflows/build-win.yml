@@ -1,3 +1,4 @@
+""
 name: Build Windows Executable
 
 on:
@@ -35,3 +36,4 @@ jobs:
         name: BenSmallApp-exe
         path: dist/BenSmallApp.exe
         retention-days: 30
+""
