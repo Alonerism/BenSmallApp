@@ -40,3 +40,12 @@ __MACOSX/
 venv/
 env/
 ENV/
+
+# Environment files with secrets
+.env
+*.env
+!.env.example
+
+# Node
+node_modules/
+
